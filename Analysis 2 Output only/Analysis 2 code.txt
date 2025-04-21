@@ -1,0 +1,789 @@
+import os
+import re
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from PyPDF2 import PdfReader
+import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from scipy import stats
+import datetime
+from dateutil.parser import parse
+import warnings
+from tqdm import tqdm
+import matplotlib.dates as mdates
+
+warnings.filterwarnings('ignore')
+
+# Download NLTK resources
+nltk.download('punkt', quiet=True)
+nltk.download('stopwords', quiet=True)
+nltk.download('vader_lexicon', quiet=True)
+
+class GoldSentimentAnalyzer:
+    def __init__(self):
+        self.sia = SentimentIntensityAnalyzer()
+        # Custom gold-related terms to enhance sentiment analysis
+        self.gold_related_terms = [
+            'gold', 'bullion', 'precious metal', 'carat', 'karat', 'oz', 'ounce', 
+            'troy', 'fineness', 'purity', 'sovereign', 'GDR', 'ETF', 'futures', 
+            'spot gold', 'xau', 'hallmark'
+        ]
+        # Add gold-related terms to the sentiment analyzer's lexicon
+        for term in self.gold_related_terms:
+            self.sia.lexicon[term] = 2.0  # Assign a positive value to identify gold terms
+
+    def extract_circular_info(self, pdf_path):
+        """Extract circular number, date, and text from PDF"""
+        try:
+            # Extract circular number from filename
+            filename = os.path.basename(pdf_path)
+            circular_num_match = re.search(r'(?:circular|circlar)[^\d]*(\d{3})[-\s]*(\d{4})', 
+                                         filename.lower(), re.IGNORECASE)
+            
+            if circular_num_match:
+                circular_num = f"{circular_num_match.group(1)}/{circular_num_match.group(2)}"
+            else:
+                circular_num = None
+                
+            # Extract text
+            reader = PdfReader(pdf_path)
+            text = ""
+            for page in reader.pages:
+                text += page.extract_text() + " "
+            
+            # If circular number not found in filename, try to find in text
+            if not circular_num:
+                circular_pattern = re.search(r'circular\s*no\.?[:\s]*(\d{3})/(\d{4})', 
+                                           text.lower(), re.IGNORECASE)
+                if circular_pattern:
+                    circular_num = f"{circular_pattern.group(1)}/{circular_pattern.group(2)}"
+            
+            # Extract date from text
+            date_patterns = [
+                r'dated\s+(\d{1,2}(?:st|nd|rd|th)?\s+\w+,?\s+\d{4})',
+                r'date\s*:?\s*(\d{1,2}(?:st|nd|rd|th)?\s+\w+,?\s+\d{4})',
+                r'(\d{1,2})[-./](\d{1,2})[-./](\d{2,4})',
+                r'(\w+\s+\d{1,2},?\s+\d{4})'
+            ]
+            
+            extracted_date = None
+            for pattern in date_patterns:
+                date_match = re.search(pattern, text, re.IGNORECASE)
+                if date_match:
+                    date_str = date_match.group(1)
+                    try:
+                        extracted_date = parse(date_str, fuzzy=True).date()
+                        break
+                    except:
+                        continue
+            
+            # Extract circular category from text
+            category_patterns = [
+                r'(?:subject|sub|re)[:\s]+(.*?)(?:\n|$)',
+                r'(?:regarding|reg\.)[:\s]+(.*?)(?:\n|$)'
+            ]
+            
+            category = None
+            for pattern in category_patterns:
+                category_match = re.search(pattern, text, re.IGNORECASE)
+                if category_match:
+                    category = category_match.group(1).strip()
+                    break
+            
+            return {
+                'circular_num': circular_num,
+                'date': extracted_date,
+                'category': category,
+                'text': text
+            }
+        except Exception as e:
+            print(f"Error processing {pdf_path}: {str(e)}")
+            return None
+
+    def is_gold_related(self, text):
+        """Check if the text is related to gold commodity"""
+        text_lower = text.lower()
+        return any(term in text_lower for term in self.gold_related_terms)
+
+    def extract_gold_paragraphs(self, text):
+        """Extract paragraphs that are related to gold"""
+        paragraphs = text.split('\n\n')
+        gold_paragraphs = []
+        
+        for para in paragraphs:
+            if self.is_gold_related(para):
+                gold_paragraphs.append(para)
+        
+        return ' '.join(gold_paragraphs) if gold_paragraphs else None
+
+    def analyze_sentiment(self, text, method='vader'):
+        """Analyze sentiment of text using specified method"""
+        if not text or len(text.strip()) == 0:
+            return {'compound': 0, 'neg': 0, 'neu': 0, 'pos': 0}
+        
+        if method == 'vader':
+            return self.sia.polarity_scores(text)
+        elif method == 'enhanced':
+            # Enhanced sentiment method - more sensitive to gold market terms
+            scores = self.sia.polarity_scores(text)
+            
+            # Boost positive/negative scores for gold market terms
+            positive_terms = ['increase', 'rise', 'higher', 'surge', 'bull', 'gain', 'up']
+            negative_terms = ['decrease', 'fall', 'lower', 'decline', 'bear', 'loss', 'down']
+            
+            text_lower = text.lower()
+            pos_matches = sum(term in text_lower for term in positive_terms)
+            neg_matches = sum(term in text_lower for term in negative_terms)
+            
+            # Adjust scores based on gold market terminology
+            adjustment = (pos_matches - neg_matches) * 0.1
+            scores['compound'] = max(min(scores['compound'] + adjustment, 1.0), -1.0)
+            
+            return scores
+        else:
+            # Default to VADER if unknown method
+            return self.sia.polarity_scores(text)
+
+    def process_pdfs(self, pdf_folder):
+        """Process all PDFs in the folder and extract relevant information"""
+        results = []
+        
+        # List all PDF files in the folder
+        pdf_files = [f for f in os.listdir(pdf_folder) if f.lower().endswith('.pdf')]
+        
+        print(f"Processing {len(pdf_files)} PDF files...")
+        for pdf_file in tqdm(pdf_files):
+            pdf_path = os.path.join(pdf_folder, pdf_file)
+            info = self.extract_circular_info(pdf_path)
+            
+            if info:
+                # Extract gold-related content
+                gold_text = self.extract_gold_paragraphs(info['text'])
+                
+                if gold_text:
+                    # Analyze sentiment with both methods
+                    sentiment_vader = self.analyze_sentiment(gold_text, 'vader')
+                    sentiment_enhanced = self.analyze_sentiment(gold_text, 'enhanced')
+                    
+                    results.append({
+                        'circular_num': info['circular_num'],
+                        'date': info['date'],
+                        'category': info['category'],
+                        'gold_content': gold_text,
+                        'sentiment_compound': sentiment_vader['compound'],
+                        'sentiment_negative': sentiment_vader['neg'],
+                        'sentiment_neutral': sentiment_vader['neu'],
+                        'sentiment_positive': sentiment_vader['pos'],
+                        'sentiment_enhanced': sentiment_enhanced['compound'],
+                        'filename': pdf_file
+                    })
+        
+        # Create DataFrame and save the extracted data
+        circulars_df = pd.DataFrame(results)
+        
+        # Print some statistics about the extraction
+        print(f"\nExtraction results:")
+        print(f"- Total PDFs processed: {len(pdf_files)}")
+        print(f"- Gold-related circulars found: {len(circulars_df)}")
+        
+        # Print circular numbers that were successfully extracted
+        if not circulars_df.empty:
+            print(f"- Sample of extracted circular numbers: {circulars_df['circular_num'].dropna().sample(min(5, len(circulars_df))).tolist()}")
+        
+        # Count circulars with missing information
+        missing_circular_num = circulars_df['circular_num'].isna().sum()
+        missing_date = circulars_df['date'].isna().sum()
+        
+        print(f"- Circulars with missing circular number: {missing_circular_num} ({missing_circular_num/len(circulars_df)*100:.1f}%)")
+        print(f"- Circulars with missing date: {missing_date} ({missing_date/len(circulars_df)*100:.1f}%)")
+        
+        return circulars_df
+
+    def prepare_price_data(self, price_df):
+        """Prepare price data for time-window analysis"""
+        # Ensure the date column is datetime
+        if 'Date' in price_df.columns:
+            price_df['Date'] = pd.to_datetime(price_df['Date'])
+            
+            # Create a date-indexed version for easy lookups
+            date_indexed_prices = price_df.set_index('Date')
+            
+            return date_indexed_prices
+        else:
+            print("Warning: No 'Date' column found in price data")
+            return None
+
+    def calculate_price_changes(self, merged_df, date_indexed_prices, windows=[3, 7, 15]):
+        """Calculate price changes for different time windows"""
+        # Create a copy of the merged dataframe
+        result_df = merged_df.copy()
+        
+        # Convert circular date to datetime if needed
+        if 'date' in result_df.columns:
+            result_df['date'] = pd.to_datetime(result_df['date'])
+        
+        # For each time window, calculate price changes
+        for window in windows:
+            # Column names for before/after prices and percent change
+            before_col = f'price_t-{window}'
+            after_col = f'price_t+{window}'
+            pct_change_col = f'pct_change_t{window}'
+            
+            # Initialize columns
+            result_df[before_col] = np.nan
+            result_df[after_col] = np.nan
+            result_df[pct_change_col] = np.nan
+            
+            # For each circular with a date
+            for idx, row in result_df.dropna(subset=['date']).iterrows():
+                circular_date = row['date']
+                
+                # Get dates window days before and after
+                date_before = circular_date - pd.Timedelta(days=window)
+                date_after = circular_date + pd.Timedelta(days=window)
+                
+                # Find closest price data points within a few days tolerance
+                try:
+                    # Find closest available date before the target date
+                    before_prices = date_indexed_prices[:date_before].iloc[-5:]
+                    if not before_prices.empty:
+                        result_df.at[idx, before_col] = before_prices.iloc[-1]['Price']
+                    
+                    # Find closest available date after the target date
+                    after_prices = date_indexed_prices[date_after:].iloc[:5]
+                    if not after_prices.empty:
+                        result_df.at[idx, after_col] = after_prices.iloc[0]['Price']
+                    
+                    # Calculate percent change if both prices are available
+                    if pd.notna(result_df.at[idx, before_col]) and pd.notna(result_df.at[idx, after_col]):
+                        result_df.at[idx, pct_change_col] = (
+                            (result_df.at[idx, after_col] - result_df.at[idx, before_col]) / 
+                            result_df.at[idx, before_col] * 100
+                        )
+                except Exception as e:
+                    print(f"Error calculating price change for circular {row['circular_num']}: {str(e)}")
+        
+        return result_df
+
+    def merge_with_price_data(self, circulars_df, price_data_path):
+        """Merge circular sentiment data with price data from Excel"""
+        print("\nReading price data file:", price_data_path)
+        # Read price data
+        price_df = pd.read_excel(price_data_path)
+        
+        print(f"Price data columns: {price_df.columns.tolist()}")
+        print(f"Price data sample:\n{price_df.head()}")
+        
+        # Prepare date-indexed price data for lookups
+        date_indexed_prices = self.prepare_price_data(price_df)
+        
+        # Initial merge by circular number if possible
+        merged_df = None
+        if 'Circular No.' in price_df.columns and 'circular_num' in circulars_df.columns:
+            print("\nMerging by Circular Number...")
+            
+            # Standardize circular number format
+            circulars_df['circular_num_clean'] = circulars_df['circular_num'].apply(
+                lambda x: x.split('/')[0] if isinstance(x, str) and '/' in x else x
+            )
+            
+            price_df['circular_num_clean'] = price_df['Circular No.'].astype(str).apply(
+                lambda x: x.split('/')[0] if '/' in x else x
+            )
+            
+            # Merge dataframes based on circular number
+            merged_df = pd.merge(
+                circulars_df,
+                price_df[['circular_num_clean', 'Date', 'Price']],
+                on='circular_num_clean',
+                how='left'
+            )
+            
+            if 'Date' in merged_df.columns:
+                merged_df['price_date'] = pd.to_datetime(merged_df['Date'])
+            
+            merged_df['price'] = merged_df['Price']
+            
+            print(f"\nMerged data has {len(merged_df)} rows")
+            print(f"- Rows with price data: {merged_df['price'].notna().sum()}")
+        
+        # If merge by circular number didn't work well, try by date
+        if merged_df is None or merged_df['price'].notna().sum() < len(merged_df) * 0.5:
+            print("\nAttempting to merge by date...")
+            
+            if 'Date' in price_df.columns and 'date' in circulars_df.columns:
+                # Convert date columns to datetime for proper comparison
+                price_df['Date'] = pd.to_datetime(price_df['Date'])
+                circulars_df['date'] = pd.to_datetime(circulars_df['date'])
+                
+                # Merge dataframes based on date with a tolerance of 2 days
+                date_merged_df = pd.merge_asof(
+                    circulars_df.sort_values('date'),
+                    price_df[['Date', 'Price']].sort_values('Date'),
+                    left_on='date',
+                    right_on='Date',
+                    direction='nearest',
+                    tolerance=pd.Timedelta('2 days')
+                )
+                
+                date_merged_df['price'] = date_merged_df['Price']
+                
+                print(f"\nDate-based merge has {len(date_merged_df)} rows")
+                print(f"- Rows with price data: {date_merged_df['price'].notna().sum()}")
+                
+                # Use the date-based merge if it's better
+                if merged_df is None or date_merged_df['price'].notna().sum() > merged_df['price'].notna().sum():
+                    merged_df = date_merged_df
+        
+        # Calculate price changes for different time windows
+        if merged_df is not None and date_indexed_prices is not None:
+            merged_df = self.calculate_price_changes(merged_df, date_indexed_prices)
+        
+        return merged_df
+
+    def analyze_results(self, merged_df):
+        """Analyze the relationship between sentiment and price changes"""
+        # Filter out rows with missing price data for at least one time window
+        df = merged_df.dropna(subset=['pct_change_t7'])
+        
+        if len(df) < 5:  # Not enough data for meaningful analysis
+            print("Not enough data points with both sentiment and price change information.")
+            return {}
+        
+        print(f"\nAnalyzing {len(df)} circulars with both sentiment and price change data")
+        
+        # Analyze for each time window
+        windows = [3, 7, 15]
+        results = {}
+        
+        for window in windows:
+            change_col = f'pct_change_t{window}'
+            
+            # Skip if not enough data for this window
+            if df[change_col].notna().sum() < 5:
+                continue
+                
+            # Calculate correlation with significance
+            corr, p_value = stats.pearsonr(df['sentiment_compound'], df[change_col])
+            
+            print(f"\nTime window T±{window} days:")
+            print(f"- Correlation between sentiment and price change: {corr:.3f} (p-value: {p_value:.4f})")
+            
+            # Create sentiment categories
+            df['sentiment_category'] = pd.cut(
+                df['sentiment_compound'],
+                bins=[-1.1, -0.1, 0.1, 1.1],
+                labels=['Negative', 'Neutral', 'Positive']
+            )
+            
+            # Group by sentiment
+            grouped = df.groupby('sentiment_category')[change_col].agg(['mean', 'std', 'count'])
+            print(f"\nAverage price change % by sentiment category (T±{window} days):")
+            print(grouped)
+            
+            # Statistical test between positive and negative groups
+            pos_group = df[df['sentiment_category'] == 'Positive'][change_col]
+            neg_group = df[df['sentiment_category'] == 'Negative'][change_col]
+            
+            if len(pos_group) >= 3 and len(neg_group) >= 3:
+                # T-test between positive and negative sentiment groups
+                t_stat, t_p_value = stats.ttest_ind(pos_group, neg_group, equal_var=False)
+                print(f"\nT-test between Positive and Negative sentiment groups:")
+                print(f"- t-stat: {t_stat:.3f}, p-value: {t_p_value:.4f}")
+                print(f"- {'Statistically significant' if t_p_value < 0.05 else 'Not statistically significant'} at 0.05 level")
+            else:
+                print(f"\nNot enough data for statistical test between sentiment groups")
+            
+            # Also analyze using enhanced sentiment
+            if 'sentiment_enhanced' in df.columns:
+                enh_corr, enh_p_value = stats.pearsonr(df['sentiment_enhanced'], df[change_col])
+                print(f"\nEnhanced sentiment analysis:")
+                print(f"- Correlation with price change: {enh_corr:.3f} (p-value: {enh_p_value:.4f})")
+            
+            # Also analyze by circular category if available
+            if 'category' in df.columns and df['category'].notna().sum() > len(df) * 0.5:
+                # Get top categories
+                top_categories = df['category'].value_counts().head(5).index.tolist()
+                cat_grouped = df[df['category'].isin(top_categories)].groupby('category')[change_col].agg(['mean', 'std', 'count'])
+                
+                if len(cat_grouped) >= 2:
+                    print(f"\nAverage price change % by circular category (T±{window} days):")
+                    print(cat_grouped)
+            
+            # Store results
+            results[f'window_{window}'] = {
+                'correlation': corr,
+                'p_value': p_value,
+                'sentiment_impact': grouped,
+                'data': df.copy()
+            }
+            
+            if 'sentiment_enhanced' in df.columns:
+                results[f'window_{window}']['enhanced_correlation'] = enh_corr
+                results[f'window_{window}']['enhanced_p_value'] = enh_p_value
+        
+        return results
+
+    def generate_visualizations(self, analysis_results, output_folder="output"):
+        """Generate visualizations of the analysis results"""
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
+            
+        if not analysis_results:
+            print("Not enough data for visualizations")
+            return
+            
+        # For each time window
+        for window_key, results in analysis_results.items():
+            window = int(window_key.split('_')[1])
+            df = results['data']
+            change_col = f'pct_change_t{window}'
+            
+            # 1. Sentiment vs Price Change Scatter Plot
+            plt.figure(figsize=(10, 6))
+            sns.scatterplot(x='sentiment_compound', y=change_col, data=df)
+            
+            # Add regression line
+            sns.regplot(x='sentiment_compound', y=change_col, data=df, 
+                       scatter=False, ci=None, line_kws={"color": "red"})
+            
+            plt.title(f'Gold Price Change (T±{window} days) vs Circular Sentiment')
+            plt.xlabel('Sentiment Score (Compound)')
+            plt.ylabel(f'Price Change % (T+{window} vs T-{window} days)')
+            plt.grid(True, alpha=0.3)
+            
+            # Add correlation and p-value as text
+            corr = results['correlation']
+            p_val = results['p_value']
+            plt.text(0.05, 0.95, f'Correlation: {corr:.3f}\np-value: {p_val:.4f}', 
+                    transform=plt.gca().transAxes, fontsize=12, 
+                    verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.5))
+            
+            plt.savefig(os.path.join(output_folder, f'sentiment_vs_price_change_t{window}.png'))
+            
+            # 2. Box Plot of Price Changes by Sentiment Category
+            plt.figure(figsize=(12, 8))
+            sns.boxplot(x='sentiment_category', y=change_col, data=df, 
+                       palette={'Positive': 'green', 'Neutral': 'gray', 'Negative': 'red'})
+            
+            plt.title(f'Distribution of Gold Price Changes by Sentiment (T±{window} days)')
+            plt.xlabel('Sentiment Category')
+            plt.ylabel(f'Price Change % (T+{window} vs T-{window} days)')
+            plt.grid(True, alpha=0.3)
+            
+            # Add sample size for each category
+            for i, category in enumerate(['Negative', 'Neutral', 'Positive']):
+                if category in results['sentiment_impact'].index:
+                    count = results['sentiment_impact'].loc[category, 'count']
+                    mean = results['sentiment_impact'].loc[category, 'mean']
+                    plt.text(i, mean, f'n={int(count)}', ha='center', va='bottom', fontweight='bold')
+            
+            # Add horizontal line at y=0 for reference
+            plt.axhline(y=0, color='k', linestyle='--', alpha=0.5)
+            
+            plt.savefig(os.path.join(output_folder, f'price_change_boxplot_t{window}.png'))
+            
+            # 3. Sentiment Distribution
+            plt.figure(figsize=(10, 6))
+            sns.histplot(df['sentiment_compound'], bins=15, kde=True)
+            plt.title('Distribution of Sentiment Scores in Gold-Related Circulars')
+            plt.xlabel('Sentiment Score')
+            plt.ylabel('Count')
+            plt.grid(True, alpha=0.3)
+            plt.savefig(os.path.join(output_folder, f'sentiment_distribution_t{window}.png'))
+            
+            # 4. If enhanced sentiment is available
+            if 'sentiment_enhanced' in df.columns:
+                plt.figure(figsize=(10, 6))
+                sns.scatterplot(x='sentiment_enhanced', y=change_col, data=df)
+                
+                # Add regression line
+                sns.regplot(x='sentiment_enhanced', y=change_col, data=df, 
+                           scatter=False, ci=None, line_kws={"color": "red"})
+                
+                plt.title(f'Gold Price Change (T±{window} days) vs Enhanced Sentiment')
+                plt.xlabel('Enhanced Sentiment Score')
+                plt.ylabel(f'Price Change % (T+{window} vs T-{window} days)')
+                plt.grid(True, alpha=0.3)
+                
+                # Add correlation and p-value as text
+                enh_corr = results.get('enhanced_correlation', 0)
+                enh_p_val = results.get('enhanced_p_value', 1)
+                plt.text(0.05, 0.95, f'Correlation: {enh_corr:.3f}\np-value: {enh_p_val:.4f}', 
+                        transform=plt.gca().transAxes, fontsize=12, 
+                        verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.5))
+                
+                plt.savefig(os.path.join(output_folder, f'enhanced_sentiment_vs_price_change_t{window}.png'))
+            
+            # 5. If category data is available
+            if 'category' in df.columns and df['category'].notna().sum() > len(df) * 0.5:
+                top_categories = df['category'].value_counts().head(5).index.tolist()
+                cat_df = df[df['category'].isin(top_categories)]
+                
+                if len(cat_df) >= 10:  # Ensure we have enough data
+                    plt.figure(figsize=(12, 8))
+                    sns.boxplot(x='category', y=change_col, data=cat_df)
+                    
+                    plt.title(f'Distribution of Gold Price Changes by Circular Category (T±{window} days)')
+                    plt.xlabel('Circular Category')
+                    plt.ylabel(f'Price Change % (T+{window} vs T-{window} days)')
+                    plt.xticks(rotation=45, ha='right')
+                    plt.grid(True, alpha=0.3)
+                    
+                    # Add horizontal line at y=0 for reference
+                    plt.axhline(y=0, color='k', linestyle='--', alpha=0.5)
+                    plt.tight_layout()
+                    
+                    plt.savefig(os.path.join(output_folder, f'price_change_by_category_t{window}.png'))
+        
+        # Export data for all time windows
+        all_windows_df = pd.DataFrame()
+        for window_key, results in analysis_results.items():
+            window = int(window_key.split('_')[1])
+            df = results['data'].copy()
+            df['time_window'] = f'T±{window} days'
+            all_windows_df = pd.concat([all_windows_df, df])
+        
+        all_windows_df.to_excel(os.path.join(output_folder, 'gold_sentiment_price_change_analysis.xlsx'), index=False)
+        
+        print(f"\nVisualizations and data saved to {output_folder} folder")
+
+    def generate_summary_report(self, analysis_results, output_folder="output"):
+        """Generate a comprehensive summary of findings"""
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
+            
+        if not analysis_results:
+            print("Not enough data for summary report")
+            return
+            
+        summary_text = """
+# MCX Gold Circular Sentiment Analysis - Summary Report
+
+## Overview
+This report analyzes the relationship between MCX circular sentiment regarding gold commodity and *gold price changes* using multiple time windows for analysis.
+
+## Key Findings
+"""
+        # Analyze each time window
+        for window_key, results in analysis_results.items():
+            window = int(window_key.split('_')[1])
+            correlation = results.get('correlation', 'N/A')
+            p_value = results.get('p_value', 'N/A')
+            
+            summary_text += f"""
+### Time Window: T±{window} days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: {correlation:.3f}
+   - Statistical significance: p-value = {p_value:.4f} ({'Significant' if p_value < 0.05 else 'Not Significant'} at α=0.05)
+"""
+            
+            # Add sentiment impact information
+            sentiment_impact = results.get('sentiment_impact', pd.DataFrame())
+            if not sentiment_impact.empty:
+                summary_text += """
+2. **Price Change % by Sentiment Category**:
+"""
+                for category in ['Positive', 'Neutral', 'Negative']:
+                    if category in sentiment_impact.index:
+                        mean = sentiment_impact.loc[category, 'mean']
+                        std = sentiment_impact.loc[category, 'std']
+                        count = sentiment_impact.loc[category, 'count']
+                        summary_text += f"   - {category} sentiment circulars (n={int(count)}): {mean:.2f}% ± {std:.2f}%\n"
+            
+            # Add T-test result if available
+            df = results.get('data', pd.DataFrame())
+            change_col = f'pct_change_t{window}'
+            
+            pos_group = df[df['sentiment_category'] == 'Positive'][change_col]
+            neg_group = df[df['sentiment_category'] == 'Negative'][change_col]
+            
+            if len(pos_group) >= 3 and len(neg_group) >= 3:
+                t_stat, t_p_value = stats.ttest_ind(pos_group, neg_group, equal_var=False)
+                
+                summary_text += f"""
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: {t_stat:.3f}
+   - p-value: {t_p_value:.4f} ({'Significant' if t_p_value < 0.05 else 'Not Significant'} at α=0.05)
+   - {'This suggests there is a statistically significant difference between price changes following positive and negative sentiment circulars.' if t_p_value < 0.05 else 'There is not enough evidence to conclude that price changes differ significantly between positive and negative sentiment circulars.'}
+"""
+            
+            # Add enhanced sentiment results if available
+            if 'enhanced_correlation' in results:
+                enh_corr = results['enhanced_correlation']
+                enh_p_val = results['enhanced_p_value']
+                
+                summary_text += f"""
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: {enh_corr:.3f}
+   - Statistical significance: p-value = {enh_p_val:.4f} ({'Significant' if enh_p_val < 0.05 else 'Not Significant'} at α=0.05)
+   - {'The enhanced sentiment algorithm shows stronger correlation with price changes compared to the standard algorithm.' if abs(enh_corr) > abs(correlation) else 'The standard sentiment algorithm performs better than the enhanced algorithm for this time window.'}
+"""
+            
+            # Add circular category analysis if available
+            if 'category' in df.columns and df['category'].notna().sum() > len(df) * 0.5:
+                top_categories = df['category'].value_counts().head(3).index.tolist()
+                
+                if len(top_categories) >= 2:
+                    summary_text += """
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+"""
+                    for category in top_categories:
+                        cat_data = df[df['category'] == category][change_col]
+                        if len(cat_data) >= 3:
+                            mean = cat_data.mean()
+                            std = cat_data.std()
+                            summary_text += f"     - {category} (n={len(cat_data)}): {mean:.2f}% ± {std:.2f}%\n"
+        
+        # Overall conclusions
+        significant_windows = [int(k.split('_')[1]) for k, v in analysis_results.items() 
+                             if v.get('p_value', 1) < 0.05]
+        
+        summary_text += """
+## Overall Conclusions
+"""
+        if significant_windows:
+            summary_text += f"""
+1. **Time Window Analysis**: The relationship between circular sentiment and price changes was statistically significant for the following time windows: {', '.join([f'T±{w} days' for w in significant_windows])}.
+"""
+        else:
+            summary_text += """
+1. **Time Window Analysis**: None of the analyzed time windows showed a statistically significant relationship between circular sentiment and price changes at the α=0.05 level.
+"""
+        
+        # Check if any time window showed significant difference between positive and negative sentiment
+        significant_ttest = False
+        for window_key, results in analysis_results.items():
+            window = int(window_key.split('_')[1])
+            df = results.get('data', pd.DataFrame())
+            change_col = f'pct_change_t{window}'
+            
+            pos_group = df[df['sentiment_category'] == 'Positive'][change_col]
+            neg_group = df[df['sentiment_category'] == 'Negative'][change_col]
+            
+            if len(pos_group) >= 3 and len(neg_group) >= 3:
+                _, t_p_value = stats.ttest_ind(pos_group, neg_group, equal_var=False)
+                if t_p_value < 0.05:
+                    significant_ttest = True
+                    break
+        
+        if significant_ttest:
+            summary_text += """
+2. **Sentiment Group Differences**: Statistical tests revealed significant differences in price changes between positive and negative sentiment circulars for at least one time window, suggesting that sentiment polarity in MCX circulars may be a useful factor for predicting subsequent price movements.
+"""
+        else:
+            summary_text += """
+2. **Sentiment Group Differences**: No statistically significant differences were found between price changes following positive versus negative sentiment circulars, suggesting that sentiment polarity alone may not be a strong predictor of subsequent price movements.
+"""
+        
+        # Enhanced sentiment algorithm comparison
+        better_algorithm = None
+        for window_key, results in analysis_results.items():
+            if 'enhanced_correlation' in results:
+                std_corr = abs(results.get('correlation', 0))
+                enh_corr = abs(results.get('enhanced_correlation', 0))
+                
+                if enh_corr > std_corr:
+                    better_algorithm = 'enhanced'
+                else:
+                    better_algorithm = 'standard'
+                break
+        
+        if better_algorithm:
+            summary_text += f"""
+3. **Sentiment Algorithm Comparison**: The {better_algorithm} sentiment algorithm generally performed better in capturing the relationship between circular sentiment and price changes. This suggests that {'domain-specific sentiment analysis with gold market terminology' if better_algorithm == 'enhanced' else 'standard sentiment analysis'} is more effective for this application.
+"""
+        
+        # Final remarks
+        summary_text += """
+## Limitations and Recommendations
+
+1. **Multiple Factors**: Gold prices are influenced by numerous global factors beyond MCX circulars, including macroeconomic indicators, geopolitical events, and market sentiment from other sources.
+
+2. **Sample Size**: The analysis is based on a limited set of circulars, which may affect the robustness of the findings.
+
+3. **Time Lag**: The optimal time window for measuring price changes after circular issuance may vary depending on market conditions and the nature of the circular.
+
+4. **Sentiment Algorithms**: Standard sentiment analysis may not fully capture the nuanced and technical language used in MCX circulars.
+
+### Recommendations for Further Research
+
+1. **Combine with Other Indicators**: Integrate circular sentiment with other technical and fundamental indicators for a more comprehensive analysis framework.
+
+2. **Develop Domain-Specific Sentiment Models**: Create sentiment algorithms specifically trained on financial and commodity market terminology.
+
+3. **Categorize Circulars**: Further analyze the relationship between circular categories and price changes to identify which types of circulars have the strongest price impact.
+
+4. **Varying Time Windows**: Experiment with additional time windows to identify the optimal lag between circular issuance and price reactions.
+"""
+        
+        # Write to file
+        with open(os.path.join(output_folder, 'summary_report.md'), 'w', encoding='utf-8') as f:
+            f.write(summary_text)
+            
+        print(f"\nSummary report saved to {output_folder}/summary_report.md")
+
+
+def main():
+    print("=" * 50)
+    print("MCX Gold Circular Sentiment Analysis Tool")
+    print("=" * 50)
+    
+    # Get input paths
+    pdf_folder = input("Enter the path to the folder containing MCX PDF circulars: ")
+    price_data_path = input("Enter the path to the Excel file with gold price data: ")
+    
+    # Validate inputs
+    if not os.path.isdir(pdf_folder):
+        print(f"Error: The specified PDF folder '{pdf_folder}' does not exist.")
+        return
+        
+    if not os.path.isfile(price_data_path) or not price_data_path.lower().endswith('.xlsx'):
+        print(f"Error: The specified price data file '{price_data_path}' does not exist or is not an Excel file.")
+        return
+    
+    # Set up output folder
+    output_folder = "mcx_gold_analysis_output"
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    
+    # Initialize the analyzer
+    analyzer = GoldSentimentAnalyzer()
+    
+    # Process PDFs
+    print("\nStep 1: Processing PDF circulars...")
+    circulars_df = analyzer.process_pdfs(pdf_folder)
+    circulars_df.to_excel(os.path.join(output_folder, "gold_circulars_extracted.xlsx"), index=False)
+    
+    # Merge with price data
+    print("\nStep 2: Merging with gold price data and calculating price changes...")
+    merged_df = analyzer.merge_with_price_data(circulars_df, price_data_path)
+    merged_df.to_excel(os.path.join(output_folder, "gold_circulars_with_price_data.xlsx"), index=False)
+    
+    # Analyze results
+    print("\nStep 3: Analyzing relationship between sentiment and price changes...")
+    analysis_results = analyzer.analyze_results(merged_df)
+    
+    # Generate visualizations
+    print("\nStep 4: Generating visualizations...")
+    analyzer.generate_visualizations(analysis_results, output_folder)
+    
+    # Generate summary report
+    print("\nStep 5: Generating summary report...")
+    analyzer.generate_summary_report(analysis_results, output_folder)
+    
+    print("\nAnalysis complete! All results are saved in the", output_folder, "folder.")
+    print("\nAvailable output files:")
+    print("1. gold_circulars_extracted.xlsx - Raw extracted data from circulars")
+    print("2. gold_circulars_with_price_data.xlsx - Merged circular and price data with price changes")
+    print("3. gold_sentiment_price_change_analysis.xlsx - Complete data used for analysis")
+    print("4. Various visualization PNG files showing price changes by sentiment")
+    print("5. summary_report.md - Comprehensive analysis findings")
+
+
+if __name__ == "__main__":
+    main()

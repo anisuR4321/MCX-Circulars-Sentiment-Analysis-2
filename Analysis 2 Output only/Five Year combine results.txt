@@ -1,0 +1,606 @@
+The analysis results for the year 2020 are
+
+# MCX Gold Circular Sentiment Analysis - Summary Report
+
+## Overview
+This report analyzes the relationship between MCX circular sentiment regarding gold commodity and *gold price changes* using multiple time windows for analysis.
+
+## Key Findings
+
+### Time Window: T±3 days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: -0.152
+   - Statistical significance: p-value = 0.0030 (Significant at α=0.05)
+
+2. **Price Change % by Sentiment Category**:
+   - Positive sentiment circulars (n=293): -0.06% ± 2.34%
+   - Neutral sentiment circulars (n=1): 0.64% ± nan%
+   - Negative sentiment circulars (n=87): 0.80% ± 2.23%
+
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: -3.113
+   - p-value: 0.0022 (Significant at α=0.05)
+   - This suggests there is a statistically significant difference between price changes following positive and negative sentiment circulars.
+
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: -0.145
+   - Statistical significance: p-value = 0.0045 (Significant at α=0.05)
+   - The standard sentiment algorithm performs better than the enhanced algorithm for this time window.
+
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+     - notified as under: (n=195): 0.10% ± 2.42%
+     - hereby notified as under: (n=52): 0.24% ± 2.20%
+     - hereby  notified as under: (n=28): 0.65% ± 1.84%
+
+### Time Window: T±7 days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: -0.158
+   - Statistical significance: p-value = 0.0020 (Significant at α=0.05)
+
+2. **Price Change % by Sentiment Category**:
+   - Positive sentiment circulars (n=293): 0.47% ± 3.68%
+   - Neutral sentiment circulars (n=1): -0.13% ± nan%
+   - Negative sentiment circulars (n=87): 1.79% ± 3.70%
+
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: -2.918
+   - p-value: 0.0041 (Significant at α=0.05)
+   - This suggests there is a statistically significant difference between price changes following positive and negative sentiment circulars.
+
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: -0.165
+   - Statistical significance: p-value = 0.0013 (Significant at α=0.05)
+   - The enhanced sentiment algorithm shows stronger correlation with price changes compared to the standard algorithm.
+
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+     - notified as under: (n=195): 0.54% ± 3.80%
+     - hereby notified as under: (n=52): 0.95% ± 3.42%
+     - hereby  notified as under: (n=28): 1.08% ± 3.18%
+
+### Time Window: T±15 days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: -0.086
+   - Statistical significance: p-value = 0.0919 (Not Significant at α=0.05)
+
+2. **Price Change % by Sentiment Category**:
+   - Positive sentiment circulars (n=293): 2.08% ± 5.25%
+   - Neutral sentiment circulars (n=1): 2.38% ± nan%
+   - Negative sentiment circulars (n=87): 3.15% ± 5.35%
+
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: -1.652
+   - p-value: 0.1007 (Not Significant at α=0.05)
+   - There is not enough evidence to conclude that price changes differ significantly between positive and negative sentiment circulars.
+
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: -0.093
+   - Statistical significance: p-value = 0.0704 (Not Significant at α=0.05)
+   - The enhanced sentiment algorithm shows stronger correlation with price changes compared to the standard algorithm.
+
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+     - notified as under: (n=195): 2.05% ± 4.99%
+     - hereby notified as under: (n=52): 2.44% ± 5.21%
+     - hereby  notified as under: (n=28): 2.85% ± 5.70%
+
+## Overall Conclusions
+
+1. **Time Window Analysis**: The relationship between circular sentiment and price changes was statistically significant for the following time windows: T±3 days, T±7 days.
+
+2. **Sentiment Group Differences**: Statistical tests revealed significant differences in price changes between positive and negative sentiment circulars for at least one time window, suggesting that sentiment polarity in MCX circulars may be a useful factor for predicting subsequent price movements.
+
+3. **Sentiment Algorithm Comparison**: The standard sentiment algorithm generally performed better in capturing the relationship between circular sentiment and price changes. This suggests that standard sentiment analysis is more effective for this application.
+
+## Limitations and Recommendations
+
+1. **Multiple Factors**: Gold prices are influenced by numerous global factors beyond MCX circulars, including macroeconomic indicators, geopolitical events, and market sentiment from other sources.
+
+2. **Sample Size**: The analysis is based on a limited set of circulars, which may affect the robustness of the findings.
+
+3. **Time Lag**: The optimal time window for measuring price changes after circular issuance may vary depending on market conditions and the nature of the circular.
+
+4. **Sentiment Algorithms**: Standard sentiment analysis may not fully capture the nuanced and technical language used in MCX circulars.
+
+### Recommendations for Further Research
+
+1. **Combine with Other Indicators**: Integrate circular sentiment with other technical and fundamental indicators for a more comprehensive analysis framework.
+
+2. **Develop Domain-Specific Sentiment Models**: Create sentiment algorithms specifically trained on financial and commodity market terminology.
+
+3. **Categorize Circulars**: Further analyze the relationship between circular categories and price changes to identify which types of circulars have the strongest price impact.
+
+4. **Varying Time Windows**: Experiment with additional time windows to identify the optimal lag between circular issuance and price reactions.
+
+
+
+
+
+The analysis results for the year 2021 are
+
+# MCX Gold Circular Sentiment Analysis - Summary Report
+
+## Overview
+This report analyzes the relationship between MCX circular sentiment regarding gold commodity and *gold price changes* using multiple time windows for analysis.
+
+## Key Findings
+
+### Time Window: T±3 days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: -0.120
+   - Statistical significance: p-value = 0.0490 (Significant at α=0.05)
+
+2. **Price Change % by Sentiment Category**:
+   - Positive sentiment circulars (n=222): -0.15% ± 1.54%
+   - Neutral sentiment circulars (n=0): nan% ± nan%
+   - Negative sentiment circulars (n=47): 0.28% ± 1.22%
+
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: -2.106
+   - p-value: 0.0384 (Significant at α=0.05)
+   - This suggests there is a statistically significant difference between price changes following positive and negative sentiment circulars.
+
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: -0.117
+   - Statistical significance: p-value = 0.0555 (Not Significant at α=0.05)
+   - The standard sentiment algorithm performs better than the enhanced algorithm for this time window.
+
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+     - notified as under: (n=129): -0.23% ± 1.41%
+     - hereby notified as under: (n=46): 0.37% ± 1.26%
+     - hereby  notified as under: (n=19): 0.24% ± 1.30%
+
+### Time Window: T±7 days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: -0.060
+   - Statistical significance: p-value = 0.3249 (Not Significant at α=0.05)
+
+2. **Price Change % by Sentiment Category**:
+   - Positive sentiment circulars (n=222): -0.26% ± 2.33%
+   - Neutral sentiment circulars (n=0): nan% ± nan%
+   - Negative sentiment circulars (n=47): 0.08% ± 1.94%
+
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: -1.074
+   - p-value: 0.2862 (Not Significant at α=0.05)
+   - There is not enough evidence to conclude that price changes differ significantly between positive and negative sentiment circulars.
+
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: -0.063
+   - Statistical significance: p-value = 0.3055 (Not Significant at α=0.05)
+   - The enhanced sentiment algorithm shows stronger correlation with price changes compared to the standard algorithm.
+
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+     - notified as under: (n=129): -0.37% ± 2.10%
+     - hereby notified as under: (n=46): 0.32% ± 1.77%
+     - hereby  notified as under: (n=19): -0.17% ± 2.51%
+
+### Time Window: T±15 days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: -0.025
+   - Statistical significance: p-value = 0.6841 (Not Significant at α=0.05)
+
+2. **Price Change % by Sentiment Category**:
+   - Positive sentiment circulars (n=222): -0.56% ± 3.25%
+   - Neutral sentiment circulars (n=0): nan% ± nan%
+   - Negative sentiment circulars (n=47): -0.41% ± 3.19%
+
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: -0.300
+   - p-value: 0.7651 (Not Significant at α=0.05)
+   - There is not enough evidence to conclude that price changes differ significantly between positive and negative sentiment circulars.
+
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: -0.026
+   - Statistical significance: p-value = 0.6712 (Not Significant at α=0.05)
+   - The enhanced sentiment algorithm shows stronger correlation with price changes compared to the standard algorithm.
+
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+     - notified as under: (n=129): -0.59% ± 3.25%
+     - hereby notified as under: (n=46): 0.23% ± 2.99%
+     - hereby  notified as under: (n=19): -1.26% ± 3.77%
+
+## Overall Conclusions
+
+1. **Time Window Analysis**: The relationship between circular sentiment and price changes was statistically significant for the following time windows: T±3 days.
+
+2. **Sentiment Group Differences**: Statistical tests revealed significant differences in price changes between positive and negative sentiment circulars for at least one time window, suggesting that sentiment polarity in MCX circulars may be a useful factor for predicting subsequent price movements.
+
+3. **Sentiment Algorithm Comparison**: The standard sentiment algorithm generally performed better in capturing the relationship between circular sentiment and price changes. This suggests that standard sentiment analysis is more effective for this application.
+
+## Limitations and Recommendations
+
+1. **Multiple Factors**: Gold prices are influenced by numerous global factors beyond MCX circulars, including macroeconomic indicators, geopolitical events, and market sentiment from other sources.
+
+2. **Sample Size**: The analysis is based on a limited set of circulars, which may affect the robustness of the findings.
+
+3. **Time Lag**: The optimal time window for measuring price changes after circular issuance may vary depending on market conditions and the nature of the circular.
+
+4. **Sentiment Algorithms**: Standard sentiment analysis may not fully capture the nuanced and technical language used in MCX circulars.
+
+### Recommendations for Further Research
+
+1. **Combine with Other Indicators**: Integrate circular sentiment with other technical and fundamental indicators for a more comprehensive analysis framework.
+
+2. **Develop Domain-Specific Sentiment Models**: Create sentiment algorithms specifically trained on financial and commodity market terminology.
+
+3. **Categorize Circulars**: Further analyze the relationship between circular categories and price changes to identify which types of circulars have the strongest price impact.
+
+4. **Varying Time Windows**: Experiment with additional time windows to identify the optimal lag between circular issuance and price reactions.
+
+
+
+
+
+The analysis results for the year 2022 are
+
+# MCX Gold Circular Sentiment Analysis - Summary Report
+
+## Overview
+This report analyzes the relationship between MCX circular sentiment regarding gold commodity and *gold price changes* using multiple time windows for analysis.
+
+## Key Findings
+
+### Time Window: T±3 days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: nan
+   - Statistical significance: p-value = nan (Not Significant at α=0.05)
+
+2. **Price Change % by Sentiment Category**:
+   - Positive sentiment circulars (n=212): 0.34% ± 1.19%
+   - Neutral sentiment circulars (n=2): 0.97% ± 1.09%
+   - Negative sentiment circulars (n=52): 0.37% ± 1.24%
+
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: nan
+   - p-value: nan (Not Significant at α=0.05)
+   - There is not enough evidence to conclude that price changes differ significantly between positive and negative sentiment circulars.
+
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: nan
+   - Statistical significance: p-value = nan (Not Significant at α=0.05)
+   - The standard sentiment algorithm performs better than the enhanced algorithm for this time window.
+
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+     - notified as under: (n=92): 0.34% ± 1.19%
+     - hereby notified as under: (n=66): 0.30% ± 1.17%
+     - hereby  notified as under: (n=27): 0.38% ± 1.15%
+
+### Time Window: T±7 days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: 0.067
+   - Statistical significance: p-value = 0.2761 (Not Significant at α=0.05)
+
+2. **Price Change % by Sentiment Category**:
+   - Positive sentiment circulars (n=213): 0.55% ± 2.12%
+   - Neutral sentiment circulars (n=2): 1.63% ± 2.48%
+   - Negative sentiment circulars (n=52): 0.21% ± 2.13%
+
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: 1.037
+   - p-value: 0.3030 (Not Significant at α=0.05)
+   - There is not enough evidence to conclude that price changes differ significantly between positive and negative sentiment circulars.
+
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: 0.063
+   - Statistical significance: p-value = 0.3021 (Not Significant at α=0.05)
+   - The standard sentiment algorithm performs better than the enhanced algorithm for this time window.
+
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+     - notified as under: (n=92): 0.42% ± 2.10%
+     - hereby notified as under: (n=66): 0.44% ± 2.05%
+     - hereby  notified as under: (n=27): 0.42% ± 2.19%
+
+### Time Window: T±15 days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: 0.011
+   - Statistical significance: p-value = 0.8620 (Not Significant at α=0.05)
+
+2. **Price Change % by Sentiment Category**:
+   - Positive sentiment circulars (n=213): 1.22% ± 2.59%
+   - Neutral sentiment circulars (n=2): 2.76% ± 0.45%
+   - Negative sentiment circulars (n=52): 1.25% ± 3.01%
+
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: -0.058
+   - p-value: 0.9541 (Not Significant at α=0.05)
+   - There is not enough evidence to conclude that price changes differ significantly between positive and negative sentiment circulars.
+
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: 0.008
+   - Statistical significance: p-value = 0.9029 (Not Significant at α=0.05)
+   - The standard sentiment algorithm performs better than the enhanced algorithm for this time window.
+
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+     - notified as under: (n=92): 1.38% ± 2.76%
+     - hereby notified as under: (n=66): 1.28% ± 2.59%
+     - hereby  notified as under: (n=27): 1.36% ± 2.70%
+
+## Overall Conclusions
+
+1. **Time Window Analysis**: None of the analyzed time windows showed a statistically significant relationship between circular sentiment and price changes at the α=0.05 level.
+
+2. **Sentiment Group Differences**: No statistically significant differences were found between price changes following positive versus negative sentiment circulars, suggesting that sentiment polarity alone may not be a strong predictor of subsequent price movements.
+
+3. **Sentiment Algorithm Comparison**: The standard sentiment algorithm generally performed better in capturing the relationship between circular sentiment and price changes. This suggests that standard sentiment analysis is more effective for this application.
+
+## Limitations and Recommendations
+
+1. **Multiple Factors**: Gold prices are influenced by numerous global factors beyond MCX circulars, including macroeconomic indicators, geopolitical events, and market sentiment from other sources.
+
+2. **Sample Size**: The analysis is based on a limited set of circulars, which may affect the robustness of the findings.
+
+3. **Time Lag**: The optimal time window for measuring price changes after circular issuance may vary depending on market conditions and the nature of the circular.
+
+4. **Sentiment Algorithms**: Standard sentiment analysis may not fully capture the nuanced and technical language used in MCX circulars.
+
+### Recommendations for Further Research
+
+1. **Combine with Other Indicators**: Integrate circular sentiment with other technical and fundamental indicators for a more comprehensive analysis framework.
+
+2. **Develop Domain-Specific Sentiment Models**: Create sentiment algorithms specifically trained on financial and commodity market terminology.
+
+3. **Categorize Circulars**: Further analyze the relationship between circular categories and price changes to identify which types of circulars have the strongest price impact.
+
+4. **Varying Time Windows**: Experiment with additional time windows to identify the optimal lag between circular issuance and price reactions.
+
+
+
+
+
+The analysis results for the year 2023 are
+
+# MCX Gold Circular Sentiment Analysis - Summary Report
+
+## Overview
+This report analyzes the relationship between MCX circular sentiment regarding gold commodity and *gold price changes* using multiple time windows for analysis.
+
+## Key Findings
+
+### Time Window: T±3 days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: -0.046
+   - Statistical significance: p-value = 0.4347 (Not Significant at α=0.05)
+
+2. **Price Change % by Sentiment Category**:
+   - Positive sentiment circulars (n=235): 0.18% ± 1.17%
+   - Neutral sentiment circulars (n=1): -1.40% ± nan%
+   - Negative sentiment circulars (n=49): 0.41% ± 1.06%
+
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: -1.327
+   - p-value: 0.1887 (Not Significant at α=0.05)
+   - There is not enough evidence to conclude that price changes differ significantly between positive and negative sentiment circulars.
+
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: -0.048
+   - Statistical significance: p-value = 0.4169 (Not Significant at α=0.05)
+   - The enhanced sentiment algorithm shows stronger correlation with price changes compared to the standard algorithm.
+
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+     - notified as under: (n=116): 0.26% ± 0.91%
+     - hereby notified as under: (n=63): 0.22% ± 1.37%
+     - hereby  notified as under: (n=14): -0.25% ± 1.71%
+
+### Time Window: T±7 days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: -0.036
+   - Statistical significance: p-value = 0.5477 (Not Significant at α=0.05)
+
+2. **Price Change % by Sentiment Category**:
+   - Positive sentiment circulars (n=235): 0.42% ± 1.94%
+   - Neutral sentiment circulars (n=1): 0.46% ± nan%
+   - Negative sentiment circulars (n=49): 0.68% ± 1.68%
+
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: -0.963
+   - p-value: 0.3383 (Not Significant at α=0.05)
+   - There is not enough evidence to conclude that price changes differ significantly between positive and negative sentiment circulars.
+
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: -0.038
+   - Statistical significance: p-value = 0.5262 (Not Significant at α=0.05)
+   - The enhanced sentiment algorithm shows stronger correlation with price changes compared to the standard algorithm.
+
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+     - notified as under: (n=116): 0.54% ± 1.65%
+     - hereby notified as under: (n=63): 0.40% ± 1.90%
+     - hereby  notified as under: (n=14): 0.17% ± 2.41%
+
+### Time Window: T±15 days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: -0.002
+   - Statistical significance: p-value = 0.9673 (Not Significant at α=0.05)
+
+2. **Price Change % by Sentiment Category**:
+   - Positive sentiment circulars (n=235): 1.31% ± 2.40%
+   - Neutral sentiment circulars (n=1): -2.34% ± nan%
+   - Negative sentiment circulars (n=49): 1.49% ± 2.94%
+
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: -0.400
+   - p-value: 0.6902 (Not Significant at α=0.05)
+   - There is not enough evidence to conclude that price changes differ significantly between positive and negative sentiment circulars.
+
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: -0.010
+   - Statistical significance: p-value = 0.8636 (Not Significant at α=0.05)
+   - The enhanced sentiment algorithm shows stronger correlation with price changes compared to the standard algorithm.
+
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+     - notified as under: (n=116): 1.40% ± 2.33%
+     - hereby notified as under: (n=63): 1.26% ± 2.14%
+     - hereby  notified as under: (n=14): 1.40% ± 2.68%
+
+## Overall Conclusions
+
+1. **Time Window Analysis**: None of the analyzed time windows showed a statistically significant relationship between circular sentiment and price changes at the α=0.05 level.
+
+2. **Sentiment Group Differences**: No statistically significant differences were found between price changes following positive versus negative sentiment circulars, suggesting that sentiment polarity alone may not be a strong predictor of subsequent price movements.
+
+3. **Sentiment Algorithm Comparison**: The enhanced sentiment algorithm generally performed better in capturing the relationship between circular sentiment and price changes. This suggests that domain-specific sentiment analysis with gold market terminology is more effective for this application.
+
+## Limitations and Recommendations
+
+1. **Multiple Factors**: Gold prices are influenced by numerous global factors beyond MCX circulars, including macroeconomic indicators, geopolitical events, and market sentiment from other sources.
+
+2. **Sample Size**: The analysis is based on a limited set of circulars, which may affect the robustness of the findings.
+
+3. **Time Lag**: The optimal time window for measuring price changes after circular issuance may vary depending on market conditions and the nature of the circular.
+
+4. **Sentiment Algorithms**: Standard sentiment analysis may not fully capture the nuanced and technical language used in MCX circulars.
+
+### Recommendations for Further Research
+
+1. **Combine with Other Indicators**: Integrate circular sentiment with other technical and fundamental indicators for a more comprehensive analysis framework.
+
+2. **Develop Domain-Specific Sentiment Models**: Create sentiment algorithms specifically trained on financial and commodity market terminology.
+
+3. **Categorize Circulars**: Further analyze the relationship between circular categories and price changes to identify which types of circulars have the strongest price impact.
+
+4. **Varying Time Windows**: Experiment with additional time windows to identify the optimal lag between circular issuance and price reactions.
+
+
+
+
+
+The analysis results for the year 2024 are
+
+
+# MCX Gold Circular Sentiment Analysis - Summary Report
+
+## Overview
+This report analyzes the relationship between MCX circular sentiment regarding gold commodity and *gold price changes* using multiple time windows for analysis.
+
+## Key Findings
+
+### Time Window: T±3 days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: nan
+   - Statistical significance: p-value = nan (Not Significant at α=0.05)
+
+2. **Price Change % by Sentiment Category**:
+   - Positive sentiment circulars (n=154): 0.45% ± 1.51%
+   - Neutral sentiment circulars (n=1): 1.77% ± nan%
+   - Negative sentiment circulars (n=47): 0.00% ± 1.98%
+
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: nan
+   - p-value: nan (Not Significant at α=0.05)
+   - There is not enough evidence to conclude that price changes differ significantly between positive and negative sentiment circulars.
+
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: nan
+   - Statistical significance: p-value = nan (Not Significant at α=0.05)
+   - The standard sentiment algorithm performs better than the enhanced algorithm for this time window.
+
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+     - hereby notified as under: (n=76): 0.91% ± 1.05%
+     - notified as under: (n=56): 0.04% ± 1.91%
+     - informed as under: (n=10): 0.45% ± 0.93%
+
+### Time Window: T±7 days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: 0.021
+   - Statistical significance: p-value = 0.7634 (Not Significant at α=0.05)
+
+2. **Price Change % by Sentiment Category**:
+   - Positive sentiment circulars (n=163): 0.96% ± 2.58%
+   - Neutral sentiment circulars (n=1): 1.85% ± nan%
+   - Negative sentiment circulars (n=47): 0.73% ± 3.07%
+
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: 0.464
+   - p-value: 0.6438 (Not Significant at α=0.05)
+   - There is not enough evidence to conclude that price changes differ significantly between positive and negative sentiment circulars.
+
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: 0.021
+   - Statistical significance: p-value = 0.7655 (Not Significant at α=0.05)
+   - The standard sentiment algorithm performs better than the enhanced algorithm for this time window.
+
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+     - hereby notified as under: (n=76): 1.19% ± 2.20%
+     - notified as under: (n=56): 0.62% ± 2.98%
+     - informed as under: (n=10): 0.45% ± 3.50%
+
+### Time Window: T±15 days
+
+1. **Sentiment-Price Change Correlation**:
+   - Correlation coefficient: -0.029
+   - Statistical significance: p-value = 0.6749 (Not Significant at α=0.05)
+
+2. **Price Change % by Sentiment Category**:
+   - Positive sentiment circulars (n=163): 1.94% ± 3.79%
+   - Neutral sentiment circulars (n=1): -5.61% ± nan%
+   - Negative sentiment circulars (n=47): 2.12% ± 3.77%
+
+3. **Statistical Test Between Positive and Negative Sentiment Groups**:
+   - t-statistic: -0.291
+   - p-value: 0.7720 (Not Significant at α=0.05)
+   - There is not enough evidence to conclude that price changes differ significantly between positive and negative sentiment circulars.
+
+4. **Enhanced Sentiment Analysis**:
+   - Alternative sentiment algorithm correlation: -0.033
+   - Statistical significance: p-value = 0.6362 (Not Significant at α=0.05)
+   - The enhanced sentiment algorithm shows stronger correlation with price changes compared to the standard algorithm.
+
+5. **Circular Category Analysis**:
+   - Top circular categories and their associated price changes:
+     - hereby notified as under: (n=76): 1.94% ± 3.65%
+     - notified as under: (n=56): 2.08% ± 4.31%
+     - informed as under: (n=10): 2.25% ± 3.78%
+
+## Overall Conclusions
+
+1. **Time Window Analysis**: None of the analyzed time windows showed a statistically significant relationship between circular sentiment and price changes at the α=0.05 level.
+
+2. **Sentiment Group Differences**: No statistically significant differences were found between price changes following positive versus negative sentiment circulars, suggesting that sentiment polarity alone may not be a strong predictor of subsequent price movements.
+
+3. **Sentiment Algorithm Comparison**: The standard sentiment algorithm generally performed better in capturing the relationship between circular sentiment and price changes. This suggests that standard sentiment analysis is more effective for this application.
+
+## Limitations and Recommendations
+
+1. **Multiple Factors**: Gold prices are influenced by numerous global factors beyond MCX circulars, including macroeconomic indicators, geopolitical events, and market sentiment from other sources.
+
+2. **Sample Size**: The analysis is based on a limited set of circulars, which may affect the robustness of the findings.
+
+3. **Time Lag**: The optimal time window for measuring price changes after circular issuance may vary depending on market conditions and the nature of the circular.
+
+4. **Sentiment Algorithms**: Standard sentiment analysis may not fully capture the nuanced and technical language used in MCX circulars.
+
+### Recommendations for Further Research
+
+1. **Combine with Other Indicators**: Integrate circular sentiment with other technical and fundamental indicators for a more comprehensive analysis framework.
+
+2. **Develop Domain-Specific Sentiment Models**: Create sentiment algorithms specifically trained on financial and commodity market terminology.
+
+3. **Categorize Circulars**: Further analyze the relationship between circular categories and price changes to identify which types of circulars have the strongest price impact.
+
+4. **Varying Time Windows**: Experiment with additional time windows to identify the optimal lag between circular issuance and price reactions.
